@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
-import "./App.css";
-import HangmanFigure from "./Components/HangmanFigure";
 import Header from "./Components/Header";
+import HangmanFigure from "./Components/HangmanFigure";
+import WrongLetters from "./Components/WrongLetters";
+import Word from "./Components/Word";
 import Popup from "./Components/Popup";
 import Notification from "./Components/Notification";
-import Word from "./Components/Word";
-import WrongLetters from "./Components/WrongLetters";
+import { showNotification as show } from "./helpers/helpers";
 import words from "./Components/Words";
 
-let selectedWord = words[Math.floor(Math.random() * words.length)];
+import "./App.css";
 
-const correctLetters = [];
-const wrongLetters = [];
+let selectedWord = words[Math.floor(Math.random() * words.length)];
 
 function App() {
   const [playable, setPlayable] = useState(true);
   const [correctLetters, setCorrectLetters] = useState([]);
   const [wrongLetters, setWrongLetters] = useState([]);
+  const [showNotification, setShowNotification] = useState(false);
 
   useEffect(() => {
     const handleKeydown = (event) => {
@@ -43,17 +43,34 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeydown);
   }, [correctLetters, wrongLetters, playable]);
 
+  function playAgain() {
+    setPlayable(true);
+
+    // Empty Arrays
+    setCorrectLetters([]);
+    setWrongLetters([]);
+
+    const random = Math.floor(Math.random() * words.length);
+    selectedWord = words[random];
+  }
+
   return (
-    <div className="App">
+    <>
       <Header />
       <div className="game-container">
-        <HangmanFigure />
+        <HangmanFigure wrongLetters={wrongLetters} />
         <WrongLetters wrongLetters={wrongLetters} />
         <Word selectedWord={selectedWord} correctLetters={correctLetters} />
       </div>
-      <Popup />
-      <Notification />
-    </div>
+      <Popup
+        correctLetters={correctLetters}
+        wrongLetters={wrongLetters}
+        selectedWord={selectedWord}
+        setPlayable={setPlayable}
+        playAgain={playAgain}
+      />
+      <Notification showNotification={showNotification} />
+    </>
   );
 }
 
